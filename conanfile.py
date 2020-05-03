@@ -6,15 +6,16 @@ from glob import glob
 # Added svd-patch and new FindEigen3.cmake which defines targets
 # and allows for path search overrides
 
+
 class EigenConan(ConanFile):
     name = "eigen"
     version = "3.3.7"
-    url = "https://github.com/DavidAce/conan-eigen-patched"
+    url = "https://github.com/conan-community/conan-eigen"
     homepage = "http://eigen.tuxfamily.org"
     description = "Eigen is a C++ template library for linear algebra: matrices, vectors, \
                    numerical solvers, and related algorithms."
     license = "MPL-2.0"
-    author = "davidace"
+    author = "Conan Community"
     topics = ("eigen", "algebra", "linear-algebra", "vector", "numerical")
     exports = "LICENSE"
     exports_sources = "FindEigen3.cmake"
@@ -32,7 +33,6 @@ class EigenConan(ConanFile):
         git = tools.Git(folder="eigen-patch")
         git.clone("https://gist.github.com/f48afbbc0e82ceedeb4711c71e812f59.git")
         self.run("cd " + self._source_subfolder + " && git apply ../eigen-patch/Eigen_3.3.7.patch")
-
 
     def package(self):
         unsupported_folder = os.path.join(self.package_folder, "include", "eigen3", "unsupported", "Eigen")
@@ -56,3 +56,5 @@ class EigenConan(ConanFile):
     def package_info(self):
         self.cpp_info.name = "Eigen3"
         self.cpp_info.includedirs = ['include/eigen3', 'include/unsupported']
+
+

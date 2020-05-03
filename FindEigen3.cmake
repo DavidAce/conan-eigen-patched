@@ -56,29 +56,25 @@ macro(_eigen3_check_version)
 endmacro()
 
 
-if(EIGEN3_NO_DEFAULT_PATH)
+if(EIGEN3_NO_DEFAULT_PATH OR Eigen3_NO_DEFAULT_PATH)
     set(NO_DEFAULT_PATH NO_DEFAULT_PATH)
 endif()
-if(EIGEN3_NO_CMAKE_PACKAGE_REGISTRY)
+if(EIGEN3_NO_CMAKE_PACKAGE_REGISTRY OR Eigen3_NO_CMAKE_PACKAGE_REGISTRY)
     set(NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_PACKAGE_REGISTRY)
 endif()
 
+
 # With this particular order we can manually override where we should look for Eigen first
-# Recall that H5PP_DIRECTORY_HINTS may have CONDA_PREFIX first inside if PREFER_CONDA_LIBS=ON
 list(APPEND EIGEN3_DIRECTORY_HINTS
         ${CONAN_EIGEN3_ROOT}
         $ENV{EBROOTEIGEN}
-        ${H5PP_DIRECTORY_HINTS}
         ${CMAKE_INSTALL_PREFIX}
-        ${CMAKE_BINARY_DIR}/h5pp-deps-install
-        ${CMAKE_INSTALL_PREFIX}/include
         )
 
 if(NOT EIGEN3_NO_CONFIG OR EIGEN3_CONFIG_ONLY)
 find_package(Eigen3 ${Eigen3_FIND_VERSION}
         HINTS ${EIGEN3_DIRECTORY_HINTS}
-        PATHS $ENV{CONDA_PREFIX}
-        PATH_SUFFIXES Eigen3 eigen3 include/Eigen3 include/eigen3 Eigen3/include/eigen3
+        PATH_SUFFIXES share/eigen3/cmake include Eigen3 eigen3 include/Eigen3 include/eigen3 Eigen3/include/eigen3
         ${NO_DEFAULT_PATH}
         ${NO_CMAKE_PACKAGE_REGISTRY}
         CONFIG QUIET)
@@ -89,6 +85,7 @@ if (TARGET Eigen3::Eigen)
     get_target_property(EIGEN3_INCLUDE_DIR Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
     if(EIGEN3_VERSION_OK AND EIGEN3_INCLUDE_DIR)
         set(Eigen3_FOUND TRUE)
+        target_include_directories(Eigen3::Eigen SYSTEM INTERFACE ${EIGEN3_INCLUDE_DIR})
     endif()
 endif()
 
@@ -99,7 +96,7 @@ if(NOT TARGET Eigen3::Eigen OR NOT EIGEN3_INCLUDE_DIR AND NOT EIGEN3_CONFIG_ONLY
 
     find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
             HINTS ${EIGEN3_DIRECTORY_HINTS}
-            PATHS $ENV{CONDA_PREFIX} ${KDE4_INCLUDE_DIR}
+            PATHS ${KDE4_INCLUDE_DIR}
             PATH_SUFFIXES include/eigen3 Eigen3 eigen3 include/Eigen3 Eigen3/include/eigen3
             ${NO_DEFAULT_PATH}
             ${NO_CMAKE_PACKAGE_REGISTRY}
@@ -112,8 +109,7 @@ if(NOT TARGET Eigen3::Eigen OR NOT EIGEN3_INCLUDE_DIR AND NOT EIGEN3_CONFIG_ONLY
         # Add a convenience target. This one may not have a namespace
         # but you can create one yourself as an alias
         add_library(Eigen3 INTERFACE)
-        set_target_properties(Eigen3 PROPERTIES
-                INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIR}")
+        target_include_directories(Eigen3 SYSTEM INTERFACE ${EIGEN3_INCLUDE_DIR})
     endif()
 endif()
 
