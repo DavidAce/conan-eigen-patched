@@ -9,8 +9,8 @@ from glob import glob
 
 class EigenConan(ConanFile):
     name = "eigen"
-    version = "3.3.7"
-    url = "https://github.com/conan-community/conan-eigen"
+    version = "3.3.8"
+    url = "https://github.com/DavidAce/conan-eigen-patched"
     homepage = "http://eigen.tuxfamily.org"
     description = "Eigen is a C++ template library for linear algebra: matrices, vectors, \
                    numerical solvers, and related algorithms."
@@ -26,13 +26,13 @@ class EigenConan(ConanFile):
         return "source_subfolder"
 
     def source(self):
-        source_url = "http://bitbucket.org/eigen/eigen"
-        sha256 = "7e84ef87a07702b54ab3306e77cea474f56a40afa1c0ab245bb11725d006d0da"
-        tools.get("{0}/get/{1}.tar.gz".format(source_url, self.version), sha256=sha256)
-        os.rename(glob("eigen-eigen-*")[0], self._source_subfolder)
+        source_url = "https://gitlab.com/libeigen/eigen"
+        sha256 = "146a480b8ed1fb6ac7cd33fec9eb5e8f8f62c3683b3f850094d9d5c35a92419a"
+        tools.get("{0}/-/archive/{1}/eigen-{1}.tar.gz".format(source_url, self.version), sha256=sha256)
+        os.rename(glob("eigen-*")[0], self._source_subfolder)
         git = tools.Git(folder="eigen-patch")
-        git.clone("https://gist.github.com/f48afbbc0e82ceedeb4711c71e812f59.git")
-        self.run("cd " + self._source_subfolder + " && git apply ../eigen-patch/Eigen_3.3.7.patch")
+        git.clone("https://gist.github.com/be9c216d200977d70140f7070d5fd2fa.git")
+        self.run("cd " + self._source_subfolder + " && git apply " + "../eigen-patch/Eigen_{}.patch".format(self.version))
 
     def package(self):
         unsupported_folder = os.path.join(self.package_folder, "include", "eigen3", "unsupported", "Eigen")
@@ -54,7 +54,7 @@ class EigenConan(ConanFile):
         self.info.header_only()
 
     def package_info(self):
-        self.cpp_info.name = "Eigen3"
+        self.cpp_info.name = "eigen"
         self.cpp_info.includedirs = ['include/eigen3', 'include/unsupported']
 
 
